@@ -73,3 +73,27 @@ You can add existing process to supervisor tree.
 This can be used for example for adding websocket handlers to some trackers.
 
 
+If a process is terminated, and it was started with a {M,F,A} specification then the module can export
+after_terminate/2 or after_terminate/4. After process termination and cleanup they are called as:
+
+    M:after_terminate(Name, Attrs)
+    M:after_terminate(Name, Attrs, MFA, Reason)
+
+
+Options
+-------
+
+The gen_tracker has an optional callback module. This module is passed during initialization:
+
+    init([]) ->
+      Options = [ {callback_module, my_streams_callback} ],
+      Supervisors = [{streams, {gen_tracker, start_link, [streams, Options]}, permanent, infinity, supervisor, []}],
+      {ok, { {one_for_one, 5, 10}, Supervisors} }.
+
+
+The callbacks are:
+
+    after_add_child(Zone, Name, MFA, Result)
+    after_terminate(Zone, Name, Attrs, MFA, Reason)
+
+MFA is undefined for children added using add_existing_child/2.
